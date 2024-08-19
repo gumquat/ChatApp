@@ -67,3 +67,10 @@ userChats < chats
   updatedAt: date,
   isSeen: boolean
   }
+
+
+### For approved collaborators
+-----
+please request access to the following:
+* firebase.js file containing the configuration settings
+* .env file containing the API key to plug into the settings above
