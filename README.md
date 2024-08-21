@@ -1,3 +1,6 @@
+Note to self:
+add readme info about ZuStore, and about Firestore/base
+
 # Reactive Chat App
 
 ## Overview

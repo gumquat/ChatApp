@@ -53,6 +53,11 @@
       color: white;
       cursor: pointer;
       font-weight: 500;
+
+      &:disabled{
+        cursor: no;
+        background-color: rgba(127, 255, 212, 0.233);;
+      }
     }
   }
 
