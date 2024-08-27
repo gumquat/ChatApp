@@ -1,9 +1,32 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './chatList.css';
 import AddUser from './addUser/addUser';
+import { useUserStore } from '../../../lib/userStore';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db } from '../../../lib/firebase';
 
 const ChatList = () => {
+  const [chats, setChats] = useState([]);
   const [addMode, setAddMode] = useState(false);
+  const {currentUser} = useUserStore();
+
+  useEffect(()=>{
+    const unSub = onSnapshot(doc(db, "userchats", currentUser.id), async (res) => {
+      // setChats(doc.data());
+      const items = res.data().chats;
+
+      const promises = items.map(async(item)=>{
+        const docRef = doc(db, "cities", "SF");
+        const docSnap = await getDoc(docRef);
+      })
+  });
+
+  //clean up function
+  return ()=>{
+    unSub();
+  }
+  }, [currentUser.id])
+
 
   return (
     <div className="chatList">
@@ -19,13 +42,16 @@ const ChatList = () => {
           onClick={() => setAddMode(prev => !prev)}
         />
       </div>
-      <div className="item">
+    {chats.map(chat=>(
+      <div className="item" key={chat.chatId}>
         <img src="./avatar.png" alt="" />
         <div className="texts">
           <span>Jane Doe</span>
-          <p>Latest Message Here</p>
+          <p>{chat.lastMessage}</p>
         </div>
       </div>
+    ))}
+
     {addMode && <AddUser/>}
     </div>
   );
