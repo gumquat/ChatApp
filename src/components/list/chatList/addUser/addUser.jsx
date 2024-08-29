@@ -1,35 +1,26 @@
 import React, { useState } from 'react';
 import './addUser.css';
 import { db } from '../../../../lib/firebase';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDoc, getDocs, query, where } from 'firebase/firestore';
 
-interface User {
-  username: string;
-  // Add other user properties as needed
-}
+const AddUser = () => {
+  const [user, setUser] = useState(null);
 
-const AddUser: React.FC = () => {
-  const [user, setUser] = useState<User | null>(null);
-
-  const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const username = formData.get('username') as string;
+    const formData = new FormData(e.target);
+    const username = formData.get('username');
 
     try {
       const userRef = collection(db, 'users');
       const q = query(userRef, where('username', '==', username));
+      const querySnapShot = await getDocs(q);
 
-      const querySnapshot = await getDocs(q);
-
-      if (!querySnapshot.empty) {
-        setUser(querySnapshot.docs[0].data() as User);
-      } else {
-        setUser(null);
-        console.log('User not found');
+      if (!querySnapShot.empty) {
+        setUser(querySnapShot.docs[0].data());
       }
     } catch (err) {
-      console.error('Error searching for user:', err);
+      console.log(err);
     }
   };
 
@@ -37,17 +28,15 @@ const AddUser: React.FC = () => {
     <div className="addUser">
       <form onSubmit={handleSearch}>
         <input type="text" placeholder="Username" name="username" />
-        <button type="submit">Search</button>
+        <button>Search</button>
       </form>
-      {user && (
-        <div className="user">
-          <div className="detail">
-            <img src="./avatar.png" alt="User avatar" />
-            <span>{user.username}</span>
-          </div>
-          <button>Add User</button>
+      {user && <div className="user">
+        <div className="detail">
+          <img src={user.avatar || "./avatar.png"} alt="" />
+          <span>{user.username}</span>
         </div>
-      )}
+        <button onClick={handleAdd}>Add User</button>
+      </div>}
     </div>
   );
 };
