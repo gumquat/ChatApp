@@ -1,84 +1,51 @@
 import React, { useState } from 'react';
 import './addUser.css';
 import { db } from '../../../../lib/firebase';
-import { collection, getDocs, query, serverTimestamp, setDoc, where, doc, updateDoc, arrayUnion, Timestamp } from 'firebase/firestore';
-import { useUserStore } from '../../../../lib/userStore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 
-const AddUser = () => {
-  const [user, setUser] = useState(null);
-  const { currentUser } = useUserStore();
+interface User {
+  username: string;
+  // Add other user properties as needed
+}
 
-  const handleSearch = async (e) => {
+const AddUser: React.FC = () => {
+  const [user, setUser] = useState<User | null>(null);
+
+  const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    const username = formData.get('username');
+    const formData = new FormData(e.currentTarget);
+    const username = formData.get('username') as string;
+
     try {
       const userRef = collection(db, 'users');
       const q = query(userRef, where('username', '==', username));
+
       const querySnapshot = await getDocs(q);
+
       if (!querySnapshot.empty) {
-        setUser({ ...querySnapshot.docs[0].data(), id: querySnapshot.docs[0].id });
+        setUser(querySnapshot.docs[0].data() as User);
       } else {
-        console.log('User not found');
         setUser(null);
+        console.log('User not found');
       }
     } catch (err) {
       console.error('Error searching for user:', err);
     }
   };
 
-  const handleAdd = async () => {
-    try {
-      const chatRef = collection(db, "chats");
-      const userChatsRef = collection(db, "userChats");
-      const newChatRef = doc(chatRef);
-      const now = Timestamp.now();
-
-      await setDoc(newChatRef, {
-        createdAt: serverTimestamp(),
-        messages: [],
-      });
-
-      const chatData = {
-        chatId: newChatRef.id,
-        lastMessage: "",
-        updatedAt: Date.now(),
-      };
-
-      await updateDoc(doc(userChatsRef, user.id), {
-        chats: arrayUnion({
-          ...chatData,
-          receiverId: currentUser.id,
-        })
-      });
-
-      await updateDoc(doc(userChatsRef, currentUser.id), {
-        chats: arrayUnion({
-          ...chatData,
-          receiverId: user.id,
-        }),
-      });
-
-      console.log('New chat created with ID:', newChatRef.id);
-
-    } catch (err) {
-      console.error('Error adding user to chat:', err);
-    }
-  }
-
   return (
     <div className="addUser">
       <form onSubmit={handleSearch}>
-        <input type="text" placeholder="Username" name="username" required />
+        <input type="text" placeholder="Username" name="username" />
         <button type="submit">Search</button>
       </form>
       {user && (
         <div className="user">
           <div className="detail">
-            <img src={user.avatar || "./avatar.png"} alt={`${user.username}'s avatar`} />
+            <img src="./avatar.png" alt="User avatar" />
             <span>{user.username}</span>
           </div>
-          <button onClick={handleAdd}>Add User</button>
+          <button>Add User</button>
         </div>
       )}
     </div>
