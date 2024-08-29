@@ -8,30 +8,36 @@ import { db } from '../../../lib/firebase';
 const ChatList = () => {
   const [chats, setChats] = useState([]);
   const [addMode, setAddMode] = useState(false);
-  const {currentUser} = useUserStore();
+  const { currentUser } = useUserStore();
 
-  useEffect(()=>{
-    const unSub = onSnapshot(doc(db, "userchats", currentUser.id), async (res) => {
-      const items = res.data().chats;
+  useEffect(() => {
+    const unSub = onSnapshot(doc(db, "userChats", currentUser.id), async (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const data = docSnapshot.data();
+        if (data && data.chats) {
+          const promises = data.chats.map(async (chat) => {
+            const userDocRef = doc(db, "users", chat.receiverId);
+            const userDocSnap = await getDoc(userDocRef);
+            
+            if (userDocSnap.exists()) {
+              const userData = userDocSnap.data();
+              return { ...chat, user: userData };
+            }
+            return null;
+          });
 
-      const promises = items.map(async(item)=>{
-        const userDocRef = doc(db, "users", item.receiverId);
-        const userDocSnap = await getDoc(userDocRef);
+          const chatData = (await Promise.all(promises)).filter(Boolean);
+          setChats(chatData.sort((a, b) => b.updatedAt.toMillis() - a.updatedAt.toMillis()));
+        } else {
+          setChats([]);
+        }
+      } else {
+        setChats([]);
+      }
+    });
 
-        const user = userDocSnap.data()
-
-        return {...item, user};
-      })
-      const chatData = await Promise.all(promises);
-      setChats(chatData.sort((a,b)=>b.updatedAt - a.updatedAt));
-  });
-
-  //clean up function
-  return ()=>{
-    unSub();
-  }
-  }, [currentUser.id])
-
+    return () => unSub();
+  }, [currentUser.id]);
 
   return (
     <div className="chatList">
@@ -47,17 +53,16 @@ const ChatList = () => {
           onClick={() => setAddMode(prev => !prev)}
         />
       </div>
-    {chats.map(chat=>(
-      <div className="item" key={chat.chatId}>
-        <img src="./avatar.png" alt="" />
-        <div className="texts">
-          <span>Jane Doe</span>
-          <p>{chat.lastMessage}</p>
+      {chats.map(chat => (
+        <div className="item" key={chat.chatId}>
+          <img src={chat.user.avatar || "./avatar.png"} alt="" />
+          <div className="texts">
+            <span>{chat.user.username}</span>
+            <p>{chat.lastMessage}</p>
+          </div>
         </div>
-      </div>
-    ))}
-
-    {addMode && <AddUser/>}
+      ))}
+      {addMode && <AddUser />}
     </div>
   );
 };

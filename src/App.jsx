@@ -9,11 +9,10 @@ import { auth } from './lib/firebase';
 import { useUserStore } from './lib/userStore';
 
 const App = () => {
+  const { currentUser, isLoading, fetchUserInfo } = useUserStore();
 
-  const {currentUser, isLoading, fetchUserInfo} = useUserStore();
-
-  useEffect(()=>{
-    const unSub = onAuthStateChanged(auth, (user) => {
+  useEffect(() => {
+    const unSub = onAuthStateChanged(auth, user => {
       fetchUserInfo(user?.uid);
     });
     return () => {
@@ -23,7 +22,7 @@ const App = () => {
 
   console.log(currentUser);
 
-  if(isLoading) return <div className='loading'>Loading...</div>
+  if (isLoading) return <div className="loading">Loading...</div>;
 
   return (
     <div className="container">
@@ -36,7 +35,7 @@ const App = () => {
       ) : (
         <Login />
       )}
-      <Notification/>
+      <Notification />
     </div>
   );
 };
