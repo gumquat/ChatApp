@@ -1,5 +1,7 @@
 Note to self:
-add readme info about ZuStore, and about Firestore/base
+- add readme info about ZuStore, and about Firestore/base
+- add unique username verification
+- add unique email verification
 
 # Reactive Chat App
 
