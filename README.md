@@ -1,7 +1,9 @@
 Note to self:
+- check ChatList codeblock starting at line 16, follow the comment <--- important
 - add readme info about ZuStore, and about Firestore/base
 - add unique username verification
 - add unique email verification
+
 
 # Reactive Chat App
 
