@@ -14,38 +14,35 @@ const ChatList = () => {
   const { chatId, changeChat } = useChatStore();
 
   useEffect(() => {
-    // check the following codeblock against 2.36.01
-    const unSub = onSnapshot(doc(db, "userChats", currentUser.id), async (docSnapshot) => {
-      if (docSnapshot.exists()) {
-        const data = docSnapshot.data();
-        if (data && data.chats) {
-          const promises = data.chats.map(async (chat) => {
-            const userDocRef = doc(db, "users", chat.receiverId);
-            const userDocSnap = await getDoc(userDocRef);
-            
-            if (userDocSnap.exists()) {
-              const userData = userDocSnap.data();
-              return { ...chat, user: userData };
-            }
-            return null;
-          });
+    const unSub = onSnapshot(
+      doc(db, "userChats", currentUser.id),
+      async (res) => {
+        const items = res.data().chats;
 
-          const chatData = (await Promise.all(promises)).filter(Boolean);
+        const promises = items.map(async (item) => {
+          const userDocRef = doc(db, "users", item.receiverId);
+          const userDocSnap = await getDoc(userDocRef);
 
-          setChats(chatData.sort((a, b) => b.updatedAt.toMillis() - a.updatedAt.toMillis()));
-        } else {
-          setChats([]);
-        }
-      } else {
-        setChats([]);
-      }
-    });
+          const user = userDocSnap.data();
 
-    return () => unSub();
+          return {...item, user};
+      });
+
+      const chatData = await Promise.all(promises);
+    
+      setChats(chatData.sort((a, b) => b.updatedAt - a.updatedAt));
+    }
+  );
+
+  return () => {
+    unSub();
+    };
   }, [currentUser.id]);
 
   const handleSelect = async (chat) => {
-    changeChat(chat.chatId, chat.user)
+    console.log('handleSelect called with chat:', chat);
+    changeChat(chat.chatId, chat.user);
+    console.log('changeChat called with:', chat.chatId, chat.user);
   }
 
   return (
@@ -63,7 +60,7 @@ const ChatList = () => {
         />
       </div>
       {chats.map(chat => (
-        <div className="item" key={chat.chatId} onClick={()=>handleSelect(chat)}>
+        <div className="item" key={chat.chatId} onClick={() => handleSelect(chat)}>
           <img src={chat.user.avatar || "./avatar.png"} alt="" />
           <div className="texts">
             <span>{chat.user.username}</span>
