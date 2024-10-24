@@ -3,7 +3,9 @@ Note to self:
 - add readme info about ZuStore, and about Firestore/base
 - add unique username verification
 - add unique email verification
+- the SEARCH BAR DOESNT WORK FOR FINDING USERS YET (use the little plus button and search by username)
 
+LEFT OFF AT 2:45:45
 
 # Reactive Chat App
 - to start locally: ```npm run dev``` from the root
