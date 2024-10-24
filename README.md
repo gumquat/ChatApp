@@ -3,7 +3,7 @@ Note to self:
 - add readme info about ZuStore, and about Firestore/base
 - add unique username verification
 - add unique email verification
-- the SEARCH BAR DOESNT WORK FOR FINDING USERS YET (use the little plus button and search by username)
+- the SEARCH BAR DOESNT WORK FOR FINDING USERS YET (use the little plus button and search by username) MAKE SURE TO CLOSE IT BEFORE SELECTING A USER TO OPEN THEIR CHAT
 
 LEFT OFF AT 2:45:45
 
