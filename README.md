@@ -6,6 +6,7 @@ Note to self:
 
 
 # Reactive Chat App
+- to start locally: ```npm run dev``` from the root
 
 ## Overview
 
