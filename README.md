@@ -5,7 +5,7 @@ Note to self:
 - add unique email verification
 - the SEARCH BAR DOESNT WORK FOR FINDING USERS YET (use the little plus button and search by username) MAKE SURE TO CLOSE IT BEFORE SELECTING A USER TO OPEN THEIR CHAT
 
-LEFT OFF AT 2:45:45
+LEFT OFF AT ____________
 
 # Reactive Chat App
 - to start locally: ```npm run dev``` from the root
