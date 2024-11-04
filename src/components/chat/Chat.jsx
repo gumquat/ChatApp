@@ -35,7 +35,7 @@ const Chat = () => {
   };
 
   const handleSend = async () => {
-    if (text.trim() === "") return; // Changed from !text === ""
+    if (text.trim() === "") return;
 
     try {
       // Add message to chat
@@ -43,7 +43,7 @@ const Chat = () => {
         messages: arrayUnion({
           senderId: currentUser.id,
           text,
-          createdAt: Date.now(), // Changed from new Date()
+          createdAt: Date.now(),
         })
       });
 
