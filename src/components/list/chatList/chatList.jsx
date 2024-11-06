@@ -40,6 +40,10 @@ const ChatList = () => {
   }, [currentUser.id]);
 
   const handleSelect = async (chat) => {
+    const userChats = chats.map((item)=>{
+      const {user, ...rest} = item;
+    })
+
     console.log('handleSelect called with chat:', chat);
     changeChat(chat.chatId, chat.user);
     console.log('changeChat called with:', chat.chatId, chat.user);
@@ -60,7 +64,11 @@ const ChatList = () => {
         />
       </div>
       {chats.map(chat => (
-        <div className="item" key={chat.chatId} onClick={() => handleSelect(chat)}>
+        <div
+        className="item" key={chat.chatId} 
+        onClick={() => handleSelect(chat)} 
+        style={{backgroundColor: chat?.isSeen ? "transparent" : "#66ff71"}}
+        >
           <img src={chat.user.avatar || "./avatar.png"} alt="" />
           <div className="texts">
             <span>{chat.user.username}</span>

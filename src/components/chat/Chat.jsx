@@ -1,4 +1,4 @@
-import { arrayUnion, doc, onSnapshot, updateDoc, getDoc } from 'firebase/firestore';
+import { arrayUnion, doc, onSnapshot, updateDoc, getDoc, setDoc } from 'firebase/firestore';
 import EmojiPicker from 'emoji-picker-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useChatStore } from '../../lib/chatStore';
@@ -49,27 +49,61 @@ const Chat = () => {
 
       // Update userChats for both users
       const userIDs = [currentUser.id, user.id];
+      const currentTime = Date.now();
 
       for (const id of userIDs) {
         const userChatsRef = doc(db, "userChats", id);
         const userChatsSnapshot = await getDoc(userChatsRef);
         
         if (userChatsSnapshot.exists()) {
+          // Update existing chat entry
           const userChatsData = userChatsSnapshot.data();
           const chatIndex = userChatsData.chats.findIndex(c => c.chatId === chatId);
           
           if (chatIndex !== -1) {
+            // Update existing chat
             userChatsData.chats[chatIndex] = {
               ...userChatsData.chats[chatIndex],
               lastMessage: text,
               isSeen: id === currentUser.id,
-              updatedAt: Date.now(),
+              updatedAt: currentTime,
             };
 
             await updateDoc(userChatsRef, {
               chats: userChatsData.chats,
             });
+          } else {
+            // Create new chat entry if it doesn't exist
+            const newChatEntry = {
+              chatId,
+              receiverId: id === currentUser.id ? user.id : currentUser.id,
+              lastMessage: text,
+              isSeen: id === currentUser.id,
+              updatedAt: currentTime,
+            };
+
+            if (userChatsData.chats) {
+              await updateDoc(userChatsRef, {
+                chats: arrayUnion(newChatEntry)
+              });
+            } else {
+              // Initialize chats array if it doesn't exist
+              await setDoc(userChatsRef, {
+                chats: [newChatEntry]
+              });
+            }
           }
+        } else {
+          // Create new userChats document if it doesn't exist
+          await setDoc(userChatsRef, {
+            chats: [{
+              chatId,
+              receiverId: id === currentUser.id ? user.id : currentUser.id,
+              lastMessage: text,
+              isSeen: id === currentUser.id,
+              updatedAt: currentTime,
+            }]
+          });
         }
       }
 

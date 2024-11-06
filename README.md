@@ -1,8 +1,7 @@
 Note to self:
-- check ChatList codeblock starting at line 16, follow the comment <--- important
 - add readme info about ZuStore, and about Firestore/base
 - add unique username verification
-- add unique email verification
+- add unique friend code for each user upon creation of their account
 - the SEARCH BAR DOESNT WORK FOR FINDING USERS YET (use the little plus button and search by username) MAKE SURE TO CLOSE IT BEFORE SELECTING A USER TO OPEN THEIR CHAT
 
 LEFT OFF AT ____________
