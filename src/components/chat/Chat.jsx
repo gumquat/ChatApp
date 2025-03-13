@@ -6,7 +6,6 @@ import {
   getDoc,
   setDoc,
 } from 'firebase/firestore';
-import upload from '../../lib/upload'; // uneeded?
 import EmojiPicker from 'emoji-picker-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useChatStore } from '../../lib/chatStore';
@@ -21,7 +20,8 @@ const Chat = () => {
   const [image, setImage] = useState({ file: null, url: '' });
 
   const { currentUser } = useUserStore();
-  const { chatId, user } = useChatStore();
+  const { chatId, user, isCurrentUserBlocked, isReceiverBlocked } =
+    useChatStore();
 
   const endRef = useRef(null);
 
@@ -34,32 +34,10 @@ const Chat = () => {
       setChat(res.data());
     });
 
-    // Update isSeen status when chat is opened
-    const updateSeenStatus = async () => {
-      const userChatsRef = doc(db, 'userChats', currentUser.id);
-      const userChatsSnapshot = await getDoc(userChatsRef);
-
-      if (userChatsSnapshot.exists()) {
-        const userChatsData = userChatsSnapshot.data();
-        const chatIndex = userChatsData.chats.findIndex(
-          c => c.chatId === chatId
-        );
-
-        if (chatIndex !== -1) {
-          userChatsData.chats[chatIndex].isSeen = true;
-          await updateDoc(userChatsRef, {
-            chats: userChatsData.chats,
-          });
-        }
-      }
-    };
-
-    updateSeenStatus();
-
     return () => {
       unSub();
     };
-  }, [chatId, currentUser.id]);
+  }, [chatId]);
 
   const handleEmoji = e => {
     setText(prev => prev + e.emoji);
@@ -76,89 +54,31 @@ const Chat = () => {
   };
 
   const handleSend = async () => {
-    if (text.trim() === '' && !image.file) return; // Don't send empty messages
+    if (text.trim() === '' && !image.file) return;
 
     let imageUrl = null;
 
     try {
       if (image.file) {
-        // Upload image to Firebase Storage
         console.log('Uploading image:', image.file.name);
         imageUrl = await upload(image.file);
         console.log('Image uploaded successfully. URL:', imageUrl);
       }
 
-      // Add message or image to chat
       await updateDoc(doc(db, 'chats', chatId), {
         messages: arrayUnion({
           senderId: currentUser.id,
           text,
           createdAt: Date.now(),
-          ...(imageUrl && { img: imageUrl }), // Add image URL if it exists
+          ...(imageUrl && { img: imageUrl }),
         }),
       });
 
       console.log('Message sent successfully');
 
-      // Update userChats for both users
-      const userIDs = [currentUser.id, user.id];
-      const currentTime = Date.now();
-
-      for (const id of userIDs) {
-        const userChatsRef = doc(db, 'userChats', id);
-        const userChatsSnapshot = await getDoc(userChatsRef);
-
-        if (userChatsSnapshot.exists()) {
-          const userChatsData = userChatsSnapshot.data();
-          const chatIndex = userChatsData.chats.findIndex(
-            c => c.chatId === chatId
-          );
-
-          if (chatIndex !== -1) {
-            // Update existing chat
-            userChatsData.chats[chatIndex] = {
-              ...userChatsData.chats[chatIndex],
-              lastMessage: text || 'Image', // Use 'Image' if no text
-              isSeen: id === currentUser.id,
-              updatedAt: currentTime,
-            };
-
-            await updateDoc(userChatsRef, {
-              chats: userChatsData.chats,
-            });
-          } else {
-            // Create new chat entry if it doesn't exist
-            const newChatEntry = {
-              chatId,
-              receiverId: id === currentUser.id ? user.id : currentUser.id,
-              lastMessage: text || 'Image',
-              isSeen: id === currentUser.id,
-              updatedAt: currentTime,
-            };
-
-            await updateDoc(userChatsRef, {
-              chats: arrayUnion(newChatEntry),
-            });
-          }
-        } else {
-          // Create new userChats document if it doesn't exist
-          await setDoc(userChatsRef, {
-            chats: [
-              {
-                chatId,
-                receiverId: id === currentUser.id ? user.id : currentUser.id,
-                lastMessage: text || 'Image',
-                isSeen: id === currentUser.id,
-                updatedAt: currentTime,
-              },
-            ],
-          });
-        }
-      }
-
       // Clear input after sending
       setText('');
-      setImage({ file: null, url: '' }); // Reset image state
+      setImage({ file: null, url: '' });
     } catch (err) {
       console.error('Error sending message:', err);
     }
@@ -191,7 +111,9 @@ const Chat = () => {
       <div className="center">
         {chat?.messages?.map(message => (
           <div
-            className={`message ${message.senderId === currentUser.id ? 'own' : ''}`}
+            className={`message ${
+              message.senderId === currentUser.id ? 'own' : ''
+            }`}
             key={message.createdAt}
           >
             <div className="texts">
@@ -201,15 +123,9 @@ const Chat = () => {
             </div>
           </div>
         ))}
-        {image.url && (
-          <div className="message own">
-            <div className="texts">
-              <img src={image.url} alt="" />
-            </div>
-          </div>
-        )}
         <div ref={endRef}></div>
       </div>
+
       <div className="bottom">
         <div className="icons">
           <label htmlFor="file">
@@ -220,16 +136,22 @@ const Chat = () => {
             id="file"
             style={{ display: 'none' }}
             onChange={handleImage}
+            disabled={isCurrentUserBlocked || isReceiverBlocked}
           />
           <img src="./camera.png" alt="" />
           <img src="./mic.png" alt="" />
         </div>
         <input
           type="text"
-          placeholder="type a message..."
+          placeholder={
+            isCurrentUserBlocked || isReceiverBlocked
+              ? 'You cannot send messages to this user'
+              : 'type a message...'
+          }
           value={text}
           onChange={e => setText(e.target.value)}
           onKeyPress={handleKeyPress}
+          disabled={isCurrentUserBlocked || isReceiverBlocked}
         />
         <div className="emoji">
           <img
@@ -241,7 +163,11 @@ const Chat = () => {
             <EmojiPicker open={open} onEmojiClick={handleEmoji} />
           </div>
         </div>
-        <button className="sendButton" onClick={handleSend}>
+        <button
+          className="sendButton"
+          onClick={handleSend}
+          disabled={isCurrentUserBlocked || isReceiverBlocked}
+        >
           Send
         </button>
       </div>

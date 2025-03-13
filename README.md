@@ -1,13 +1,16 @@
 Note to self:
+
+- FIX COLOR CHANGE FOR UNSEEN MESSAGES - users in the sidebar should highlight
 - add readme info about ZuStore, and about Firestore/base
 - add unique username verification
 - add unique friend code for each user upon creation of their account
 - the SEARCH BAR DOESNT WORK FOR FINDING USERS YET (use the little plus button and search by username) MAKE SURE TO CLOSE IT BEFORE SELECTING A USER TO OPEN THEIR CHAT
 
-LEFT OFF AT ____________
+LEFT OFF AT \***\*\_\_\_\_\*\***
 
 # Reactive Chat App
-- to start locally: ```npm run dev``` from the root
+
+- to start locally: `npm run dev` from the root
 
 ## Overview
 
@@ -77,9 +80,11 @@ userChats < chats
   isSeen: boolean
   }
 
-
 ### For approved collaborators
------
+
+---
+
 please request access to the following:
-* firebase.js file containing the configuration settings
-* .env file containing the API key to plug into the settings above
+
+- firebase.js file containing the configuration settings
+- .env file containing the API key to plug into the settings above

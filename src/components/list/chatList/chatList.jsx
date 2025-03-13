@@ -15,39 +15,39 @@ const ChatList = () => {
 
   useEffect(() => {
     const unSub = onSnapshot(
-      doc(db, "userChats", currentUser.id),
-      async (res) => {
+      doc(db, 'userChats', currentUser.id),
+      async res => {
         const items = res.data().chats;
 
-        const promises = items.map(async (item) => {
-          const userDocRef = doc(db, "users", item.receiverId);
+        const promises = items.map(async item => {
+          const userDocRef = doc(db, 'users', item.receiverId);
           const userDocSnap = await getDoc(userDocRef);
 
           const user = userDocSnap.data();
 
-          return {...item, user};
-      });
+          return { ...item, user };
+        });
 
-      const chatData = await Promise.all(promises);
-    
-      setChats(chatData.sort((a, b) => b.updatedAt - a.updatedAt));
-    }
-  );
+        const chatData = await Promise.all(promises);
 
-  return () => {
-    unSub();
+        setChats(chatData.sort((a, b) => b.updatedAt - a.updatedAt));
+      }
+    );
+
+    return () => {
+      unSub();
     };
   }, [currentUser.id]);
 
-  const handleSelect = async (chat) => {
-    const userChats = chats.map((item)=>{
-      const {user, ...rest} = item;
-    })
+  const handleSelect = async chat => {
+    const userChats = chats.map(item => {
+      const { user, ...rest } = item;
+    });
 
     console.log('handleSelect called with chat:', chat);
     changeChat(chat.chatId, chat.user);
     console.log('changeChat called with:', chat.chatId, chat.user);
-  }
+  };
 
   return (
     <div className="chatList">
@@ -65,13 +65,25 @@ const ChatList = () => {
       </div>
       {chats.map(chat => (
         <div
-        className="item" key={chat.chatId} 
-        onClick={() => handleSelect(chat)} 
-        style={{backgroundColor: chat?.isSeen ? "transparent" : "#66ff71"}}
+          className="item"
+          key={chat.chatId}
+          onClick={() => handleSelect(chat)}
+          style={{ backgroundColor: chat?.isSeen ? 'transparent' : '#66ff71' }}
         >
-          <img src={chat.user.avatar || "./avatar.png"} alt="" />
+          <img
+            src={
+              chat.user.blocked.includes(currentUser.id)
+                ? "'./avatar.png"
+                : chat.user.avatar || './avatar.png'
+            }
+            alt=""
+          />
           <div className="texts">
-            <span>{chat.user.username}</span>
+            <span>
+              {chat.user.blocked.includes(currentUser.id)
+                ? 'User'
+                : chat.user.username}
+            </span>
             <p>{chat.lastMessage}</p>
           </div>
         </div>
