@@ -17,6 +17,7 @@ const Chat = () => {
   const [chat, setChat] = useState();
   const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
+  const [image, setImage] = useState({ file: null, url: '' });
 
   const { currentUser } = useUserStore();
   const { chatId, user } = useChatStore();
@@ -64,16 +65,33 @@ const Chat = () => {
     setOpen(false);
   };
 
+  const handleImage = e => {
+    if (e.target.files[0]) {
+      setImage({
+        file: e.target.files[0],
+        url: URL.createObjectURL(e.target.files[0]),
+      });
+    }
+  };
+
   const handleSend = async () => {
     if (text.trim() === '') return;
 
+    let imageUrl = null;
+
     try {
-      // Add message to chat
+      if (image.file) {
+        // Upload image to Firebase Storage
+        imageUrl = await upload(image.file);
+      }
+
+      // Add message or image to chat
       await updateDoc(doc(db, 'chats', chatId), {
         messages: arrayUnion({
           senderId: currentUser.id,
           text,
           createdAt: Date.now(),
+          ...(imageUrl && { img: imageUrl }),
         }),
       });
 
@@ -146,6 +164,8 @@ const Chat = () => {
     } catch (err) {
       console.error('Error sending message:', err);
     }
+    setImage({ file: null, url: '' }); // Reset image state
+    setText(''); // Clear text input
   };
 
   const handleKeyPress = e => {
@@ -185,12 +205,26 @@ const Chat = () => {
             </div>
           </div>
         ))}
+        {image.url && (
+          <div className="message own">
+            <div className="texts">
+              <img src={image.url} alt="" />
+            </div>
+          </div>
+        )}
         <div ref={endRef}></div>
       </div>
-
       <div className="bottom">
         <div className="icons">
-          <img src="./img.png" alt="" />
+          <label htmlFor="file">
+            <img src="./img.png" alt="" />
+          </label>
+          <input
+            type="file"
+            id="file"
+            style={{ display: 'none' }}
+            onChange={handleImage}
+          />
           <img src="./camera.png" alt="" />
           <img src="./mic.png" alt="" />
         </div>
