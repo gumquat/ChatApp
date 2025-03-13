@@ -6,6 +6,7 @@ import {
   getDoc,
   setDoc,
 } from 'firebase/firestore';
+import upload from '../../lib/upload'; // uneeded?
 import EmojiPicker from 'emoji-picker-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useChatStore } from '../../lib/chatStore';
@@ -75,14 +76,16 @@ const Chat = () => {
   };
 
   const handleSend = async () => {
-    if (text.trim() === '') return;
+    if (text.trim() === '' && !image.file) return; // Don't send empty messages
 
     let imageUrl = null;
 
     try {
       if (image.file) {
         // Upload image to Firebase Storage
+        console.log('Uploading image:', image.file.name);
         imageUrl = await upload(image.file);
+        console.log('Image uploaded successfully. URL:', imageUrl);
       }
 
       // Add message or image to chat
@@ -91,9 +94,11 @@ const Chat = () => {
           senderId: currentUser.id,
           text,
           createdAt: Date.now(),
-          ...(imageUrl && { img: imageUrl }),
+          ...(imageUrl && { img: imageUrl }), // Add image URL if it exists
         }),
       });
+
+      console.log('Message sent successfully');
 
       // Update userChats for both users
       const userIDs = [currentUser.id, user.id];
@@ -104,7 +109,6 @@ const Chat = () => {
         const userChatsSnapshot = await getDoc(userChatsRef);
 
         if (userChatsSnapshot.exists()) {
-          // Update existing chat entry
           const userChatsData = userChatsSnapshot.data();
           const chatIndex = userChatsData.chats.findIndex(
             c => c.chatId === chatId
@@ -114,7 +118,7 @@ const Chat = () => {
             // Update existing chat
             userChatsData.chats[chatIndex] = {
               ...userChatsData.chats[chatIndex],
-              lastMessage: text,
+              lastMessage: text || 'Image', // Use 'Image' if no text
               isSeen: id === currentUser.id,
               updatedAt: currentTime,
             };
@@ -127,21 +131,14 @@ const Chat = () => {
             const newChatEntry = {
               chatId,
               receiverId: id === currentUser.id ? user.id : currentUser.id,
-              lastMessage: text,
+              lastMessage: text || 'Image',
               isSeen: id === currentUser.id,
               updatedAt: currentTime,
             };
 
-            if (userChatsData.chats) {
-              await updateDoc(userChatsRef, {
-                chats: arrayUnion(newChatEntry),
-              });
-            } else {
-              // Initialize chats array if it doesn't exist
-              await setDoc(userChatsRef, {
-                chats: [newChatEntry],
-              });
-            }
+            await updateDoc(userChatsRef, {
+              chats: arrayUnion(newChatEntry),
+            });
           }
         } else {
           // Create new userChats document if it doesn't exist
@@ -150,7 +147,7 @@ const Chat = () => {
               {
                 chatId,
                 receiverId: id === currentUser.id ? user.id : currentUser.id,
-                lastMessage: text,
+                lastMessage: text || 'Image',
                 isSeen: id === currentUser.id,
                 updatedAt: currentTime,
               },
@@ -161,11 +158,10 @@ const Chat = () => {
 
       // Clear input after sending
       setText('');
+      setImage({ file: null, url: '' }); // Reset image state
     } catch (err) {
       console.error('Error sending message:', err);
     }
-    setImage({ file: null, url: '' }); // Reset image state
-    setText(''); // Clear text input
   };
 
   const handleKeyPress = e => {
