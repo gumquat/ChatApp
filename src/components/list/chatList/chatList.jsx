@@ -58,7 +58,7 @@ const ChatList = () => {
     <div className="chatList">
       <div className="search">
         <div className="searchBar">
-          <img src="/search.png" alt="" />
+          <img src="images/search.png" alt="" />
           <input
             type="text"
             placeholder="Search"
@@ -66,7 +66,7 @@ const ChatList = () => {
           />
         </div>
         <img
-          src={addMode ? './minus.png' : './plus.png'}
+          src={addMode ? 'images/minus.png' : 'images/plus.png'}
           alt=""
           className="add"
           onClick={() => setAddMode(prev => !prev)}
@@ -82,8 +82,8 @@ const ChatList = () => {
           <img
             src={
               chat.user.blocked.includes(currentUser.id)
-                ? "'./avatar.png"
-                : chat.user.avatar || './avatar.png'
+                ? 'images/avatar.png'
+                : chat.user.avatar || 'images/avatar.png'
             }
             alt=""
           />

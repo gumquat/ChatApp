@@ -40,7 +40,7 @@ const Login = () => {
       if (avatar.file) {
         imgUrl = await upload(avatar.file);
       } else {
-        imgUrl = './avatar.png'; // Use a default profile picture
+        imgUrl = 'images/avatar.png'; // Use a default profile picture
       }
 
       await setDoc(doc(db, 'users', res.user.uid), {
@@ -94,7 +94,7 @@ const Login = () => {
         <h2>Create an Account</h2>
         <form onSubmit={handleRegister}>
           <label htmlFor="file">
-            <img src={avatar.url || './avatar.png'} alt="" />
+            <img src={avatar.url || 'images/avatar.png'} alt="" />
             Upload profile image
           </label>
           <input

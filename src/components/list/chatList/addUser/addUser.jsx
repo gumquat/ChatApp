@@ -1,14 +1,26 @@
 import React, { useState } from 'react';
 import './addUser.css';
 import { db } from '../../../../lib/firebase';
-import { collection, getDocs, query, serverTimestamp, setDoc, where, doc, updateDoc, arrayUnion, Timestamp, getDoc } from 'firebase/firestore';
+import {
+  collection,
+  getDocs,
+  query,
+  serverTimestamp,
+  setDoc,
+  where,
+  doc,
+  updateDoc,
+  arrayUnion,
+  Timestamp,
+  getDoc,
+} from 'firebase/firestore';
 import { useUserStore } from '../../../../lib/userStore';
 
 const AddUser = () => {
   const [user, setUser] = useState(null);
   const { currentUser } = useUserStore();
 
-  const handleSearch = async (e) => {
+  const handleSearch = async e => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const username = formData.get('username');
@@ -17,7 +29,10 @@ const AddUser = () => {
       const q = query(userRef, where('username', '==', username));
       const querySnapshot = await getDocs(q);
       if (!querySnapshot.empty) {
-        setUser({ ...querySnapshot.docs[0].data(), id: querySnapshot.docs[0].id });
+        setUser({
+          ...querySnapshot.docs[0].data(),
+          id: querySnapshot.docs[0].id,
+        });
       } else {
         console.log('User not found');
         setUser(null);
@@ -28,21 +43,21 @@ const AddUser = () => {
   };
 
   const createOrUpdateUserChat = async (userId, chatData) => {
-    const userChatRef = doc(db, "userChats", userId);
+    const userChatRef = doc(db, 'userChats', userId);
     const userChatDoc = await getDoc(userChatRef);
 
     if (!userChatDoc.exists()) {
       await setDoc(userChatRef, { chats: [chatData] });
     } else {
       await updateDoc(userChatRef, {
-        chats: arrayUnion(chatData)
+        chats: arrayUnion(chatData),
       });
     }
   };
 
   const handleAdd = async () => {
     try {
-      const chatRef = collection(db, "chats");
+      const chatRef = collection(db, 'chats');
       const newChatRef = doc(chatRef);
       const now = Timestamp.now();
 
@@ -53,7 +68,7 @@ const AddUser = () => {
 
       const chatData = {
         chatId: newChatRef.id,
-        lastMessage: "",
+        lastMessage: '',
         updatedAt: now,
       };
 
@@ -68,11 +83,10 @@ const AddUser = () => {
       });
 
       console.log('New chat created with ID:', newChatRef.id);
-
     } catch (err) {
       console.error('Error adding user to chat:', err);
     }
-  }
+  };
 
   return (
     <div className="addUser">
@@ -83,7 +97,10 @@ const AddUser = () => {
       {user && (
         <div className="user">
           <div className="detail">
-            <img src={user.avatar || "./avatar.png"} alt={`${user.username}'s avatar`} />
+            <img
+              src={user.avatar || 'images/avatar.png'}
+              alt={`${user.username}'s avatar`}
+            />
             <span>{user.username}</span>
           </div>
           <button onClick={handleAdd}>Add User</button>

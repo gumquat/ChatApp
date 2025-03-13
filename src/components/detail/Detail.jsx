@@ -29,7 +29,7 @@ const Detail = () => {
   return (
     <div className="detail">
       <div className="user">
-        <img src={user?.avatar || '.avatar.png'} alt="" />
+        <img src={user?.avatar || 'images/avatar.png'} alt="" />
         <h2>{user?.username}</h2>
         <p>
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Eligendi,
@@ -40,34 +40,34 @@ const Detail = () => {
         <div className="option">
           <div className="title">
             <span>Chat Settings</span>
-            <img src="arrowUp.png" alt="" />
+            <img src="images/arrowUp.png" alt="" />
           </div>
         </div>
         <div className="option">
           <div className="title">
             <span>Privacy & Help</span>
-            <img src="arrowUp.png" alt="" />
+            <img src="images/arrowUp.png" alt="" />
           </div>
         </div>
         <div className="option">
           <div className="title">
             <span>Shared photos</span>
-            <img src="arrowDown.png" alt="" />
+            <img src="images/arrowDown.png" alt="" />
           </div>
           <div className="photos">
             <div className="photoItem">
               <div className="photoDetail">
-                <img src="img.png" alt="" />
+                <img src="images/img.png" alt="" />
                 <span>photo_2024.png</span>
               </div>
-              <img src="./download.png" alt="" className="icon" />
+              <img src="images/download.png" alt="" className="icon" />
             </div>
           </div>
         </div>
         <div className="option">
           <div className="title">
             <span>Shared Files</span>
-            <img src="arrowUp.png" alt="" />
+            <img src="images/arrowUp.png" alt="" />
           </div>
         </div>
         <button onClick={handleBlock}>

@@ -8,13 +8,13 @@ const UserInfo = () => {
   return (
     <div className="userInfo">
       <div className="user">
-        <img src={currentUser.avatar || './avatar.png'} alt="" />
+        <img src={currentUser.avatar || 'images/avatar.png'} alt="" />
         <h2>{currentUser.username}</h2>
       </div>
       <div className="icons">
-        <img src="./more.png" alt="" />
-        <img src="./video.png" alt="" />
-        <img src="./edit.png" alt="" />
+        <img src="images/more.png" alt="" />
+        <img src="images/video.png" alt="" />
+        <img src="images/edit.png" alt="" />
       </div>
     </div>
   );
