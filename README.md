@@ -1,12 +1,12 @@
-Note to self:
+# About
 
-- FIX COLOR CHANGE FOR UNSEEN MESSAGES - users in the sidebar should highlight
-- add readme info about ZuStore, and about Firestore/base
+I wanted to make a secure messaging app using a react frontend and a firebase backend, capable of real-time communications using text, emojis, and images.
+
+# Roadmap:
+
 - add unique username verification
 - add unique friend code for each user upon creation of their account
-- the SEARCH BAR DOESNT WORK FOR FINDING USERS YET (use the little plus button and search by username) MAKE SURE TO CLOSE IT BEFORE SELECTING A USER TO OPEN THEIR CHAT
-
-LEFT OFF AT \***\*\_\_\_\_\*\***
+- stretch goal: add gpg encription for super-secure messaging between users
 
 # Reactive Chat App
 
