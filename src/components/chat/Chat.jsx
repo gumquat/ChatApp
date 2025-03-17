@@ -12,7 +12,7 @@ import { useChatStore } from '../../lib/chatStore';
 import { useUserStore } from '../../lib/userStore';
 import { db } from '../../lib/firebase';
 import './chat.css';
-import { upload } from '../../lib/firebaseStorage';
+import upload from '../../lib/upload';
 
 const Chat = () => {
   const [chat, setChat] = useState();
