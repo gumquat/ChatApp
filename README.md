@@ -1,8 +1,10 @@
 # About
 
-![alt text](<images/ChatApp _thumbnail.png>)
-
 I wanted to make a secure messaging app using a react frontend and a firebase backend, capable of real-time communications using text, emojis, and images.
+
+![alt text](<images/ChatApp _thumbnail.png>)
+![alt text](<images/ChatApp _thumbnail_02.png>)
+![alt text](<images/ChatApp _thumbnail_03.png>)
 
 # Roadmap:
 
